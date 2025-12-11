@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build TCP Server",
+      "type": "shell",
+      "command": "gcc",
+      "args": [
+        "-g",
+        "modbus_tcp_server.c",
+        "-o",
+        "modbus_tcp_server",
+        "-lsqlite3",
+        "-lhiredis",
+        "-ljansson",
+        "-lpthread",
+        "-lmodbus"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "detail": "Compile Modbus TCP Server with required libraries"
+    }
+  ]
+}

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>SmartLogger Control Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root {
+            --red-900: #880404f8;
+            --blue-800: #880404f8;
+            --blue-700: #880404f8;
+            --panel: #ffffff;
+            --muted: #2f6fcf;
+            --text: #0b1220;
+            --accent: #088618;
+            --line: #d7dbe2;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: Segoe UI, Roboto, Arial, sans-serif;
+            color: var(--text);
+            background: var(--muted)
+        }
+
+        /* Top bar (level-1) */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--blue-800);
+            color: #ffffff;
+            padding: 8px 12px
+        }
+
+        .brand {
+            font-weight: 1000;
+            opacity: 2
+        }
+
+        .lvl1 {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .lvl1 button {
+            background: transparent;
+            border: 0;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .lvl1 button.active,
+        .lvl1 button:hover {
+            background: rgba(255, 255, 255, .15)
+        }
+
+        .status-icons {
+            display: flex;
+            align-items: center;
+            gap: 50px
+        }
+
+        .lang {
+            background: #fff;
+            color: #111;
+            border: 0;
+            border-radius: 6px;
+            padding: 6px 8px
+        }
+
+        .wrap {
+            display: flex;
+            height: calc(100vh - 92px);
+            min-height: 540px
+        }
+
+        /* Sidebar (level-2) */
+        .sidebar {
+            width: 200px;
+            background: var(--red-900);
+            color: #e8eef9;
+            padding: 12px 10px;
+            overflow: auto
+        }
+
+        .side-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: .7;
+            margin: 4px 6px 8px
+        }
+
+        .lvl2 {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .lvl2 button {
+            text-align: left;
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid rgba(255, 255, 255, .12);
+            color: #e8eef9;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+        .lvl2 button.active,
+        .lvl2 button:hover {
+            background: rgba(255, 255, 255, .18)
+        }
+
+        /* Main (level-3 + content) */
+        .main {
+            flex: 1;
+            background: var(--panel);
+            border-left: 1px solid var(--line);
+            padding: 16px 18px;
+            overflow: auto
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px
+        }
+
+        .tab {
+            padding: 6px 10px;
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 8px;
+            cursor: pointer
+        }
+
+        .tab.active,
+        .tab:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 10px
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 14px;
+            background: #fff;
+            margin-bottom: 14px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px
+        }
+
+        th,
+        td {
+            border: 1px solid var(--line);
+            padding: 8px;
+            text-align: center
+        }
+
+        th {
+            background: #f6f8fb
+        }
+
+        /* Footer status bar */
+        .bottombar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--blue-800);
+            color: #fff;
+            padding: 8px 12px
+        }
+
+        .pill {
+            background: rgba(255, 255, 255, .15);
+            padding: 4px 8px;
+            border-radius: 999px
+        }
+
+        .muted {
+            opacity: .8
+        }
+
+        /* small helpers */
+        .hidden {
+            display: none
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Level 1: Top nav -->
+    <div class="topbar">
+        <div class="brand">CONTROL DASHBOARD</div>
+        <div class="lvl1" id="lvl1">
+            <button data-l1="Deployment Wizard" class="active">Deployment Wizard</button>
+            <button data-l1="Overview">Over View</button>
+            <button data-l1="Monitoring">Monitoring</button>
+            <button data-l1="Query">Query</button>
+            <button data-l1="Settings">Settings</button>
+            <button data-l1="Maintenance">Maintenance</button>
+        </div>
+        <div class="status-icons">
+            <span title="SIM signal">📶</span>
+            <span title="Alarms"><span style="color:#ffd84d">⚠</span> 0</span>
+            <select class="lang" id="lang">
+                <option>English</option>
+                <option>Vietnamese</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="wrap">
+        <!-- Level 2: Sidebar switches with Level 1 -->
+        <aside class="sidebar">
+            <div class="side-title">Options</div>
+            <div class="lvl2" id="lvl2"></div>
+        </aside>
+
+        <!-- Level 3 + Content -->
+        <main class="main">
+            <!-- Level 3 tabs area (only shown for pages có cấp 3) -->
+            <div class="tabs hidden" id="tabs"></div>
+
+            <!-- Content area -->
+            <div id="content"></div>
+        </main>
+    </div>
+
+    <!-- Bottom status bar -->
+    <div class="bottombar">
+        <div class="pill" id="sysTime">Time: --:--</div>
+        <div class="pill muted">Grid dispatch • P: NA • Q: NA</div>
+    </div>
+
+    <!-- Chart.js for Plant Yield graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // ====== MENU DEFINITION (bám theo ảnh & mô tả manual) ======
+        // Level-1 → Level-2 → Level-3 (nếu có)
+        const MENU = {
+            "Deployment Wizard": {
+                "_single": {
+                    title: "Deployment Wizard", desc:
+                        "Supports the deployment wizard. Set deployment parameters, connect devices, and connect to the management system step-by-step."
+                }
+            },
+            "Overview": {
+                "Plant Running Info.": { _single: { title: "Plant Running Info.", desc: "Queries plant information (status, power, energy today, devices online, etc.)." } },
+                "Active Alarm": { _single: { title: "Active Alarm", desc: "Queries active alarms with severity and timestamp." } },
+                "Plant Yield": {
+                    _tabs: ["Day", "Month", "Year", "History"],
+                    sections: {
+                        "Day": { title: "Yield – Day", chart: true },
+                        "Month": { title: "Yield – Month", chart: true },
+                        "Year": { title: "Yield – Year", chart: true },
+                        "History": { title: "Yield – History", chart: false, desc: "Download/Query historical yield records." }
+                    }
+                },
+                "Performance Data": { _single: { title: "Performance Data", desc: "Performance KPIs and charts." } },
+                "Device Running Info.": { _single: { title: "Device Running Info.", desc: "Device list, status, version, uptime." } },
+                "Mobile Data": { _single: { title: "Mobile Data", desc: "Queries mobile network data: SIM, operator, signal, connection, usage." } }
+            },
+            "Monitoring": {
+                "Logger": { _single: { title: "SmartLogger", desc: "SmartLogger status, firmware, IP, online devices, comm status." } },
+                "Inverter": { _single: { title: "Inverter", desc: "Inverter list and statuses." } },
+                "Meter": { _single: { title: "Meter", desc: "Energy meters status and readings." } }
+            },
+            "Query": {
+                "Energy": {
+                    _tabs: ["Generated", "Consumed", "Purchased", "Sold"],
+                    sections: {
+                        "Generated": { title: "Energy – Generated", desc: "Query energy generated by PV or genset." },
+                        "Consumed": { title: "Energy – Consumed", desc: "Query site consumption." },
+                        "Purchased": { title: "Energy – Purchased", desc: "Energy bought from grid." },
+                        "Sold": { title: "Energy – Sold", desc: "Energy fed back to grid." }
+                    }
+                },
+                "Alarm History": { _single: { title: "Alarm History", desc: "Historical alarm records & export." } },
+                "Operation Log": { _single: { title: "Operation Log", desc: "User operations, login records." } }
+            },
+            "Settings": {
+                "Time": { _single: { title: "Time Settings", desc: "NTP / Manual time, timezone." } },
+                "Network": { _single: { title: "Network", desc: "LAN/WAN, Mobile (APN), DNS." } },
+                "User Management": { _single: { title: "User Management", desc: "Accounts, roles, password policy." } }
+            },
+            "Maintenance": {
+                "Upgrade": { _single: { title: "Upgrade", desc: "Firmware upgrade, package status." } },
+                "Backup & Restore": { _single: { title: "Backup & Restore", desc: "Export/Import configuration." } },
+                "Diagnostics": { _single: { title: "Diagnostics", desc: "Ping, traceroute, packet capture." } }
+            }
+        };
+
+        // ====== RENDERING LOGIC ======
+        const lvl1El = document.getElementById("lvl1");
+        const lvl2El = document.getElementById("lvl2");
+        const tabsEl = document.getElementById("tabs");
+        const contentEl = document.getElementById("content");
+
+        let currentL1 = "Deployment Wizard";
+        let currentL2 = null;
+        let currentTab = null;
+        let chart; // Chart.js instance
+
+        function setActiveLvl1(name) {
+            currentL1 = name;
+            [...lvl1El.querySelectorAll("button")].forEach(b => {
+                b.classList.toggle("active", b.dataset.l1 === name);
+            });
+            renderLvl2();
+        }
+
+        function renderLvl2() {
+            lvl2El.innerHTML = "";
+            const group = MENU[currentL1];
+            const keys = Object.keys(group);
+            // pick first L2 by default
+            currentL2 = keys[0];
+            keys.forEach(k => {
+                const btn = document.createElement("button");
+                btn.textContent = k.replace("_single", "Setup");
+                btn.dataset.l2 = k;
+                btn.className = "lvl2btn";
+                btn.onclick = () => { setActiveLvl2(k); };
+                lvl2El.appendChild(btn);
+            });
+            setActiveLvl2(currentL2);
+            [...lvl2El.querySelectorAll("button")].forEach(b => {
+                b.classList.toggle("active", b.dataset.l2 === currentL2);
+            });
+        }
+
+        function setActiveLvl2(name) {
+            currentL2 = name;
+            [...lvl2El.querySelectorAll("button")].forEach(b => {
+                b.classList.toggle("active", b.dataset.l2 === name);
+            });
+            renderMain();
+        }
+
+        function renderTabs(tabList) {
+            tabsEl.innerHTML = "";
+            if (!tabList || !tabList.length) { tabsEl.classList.add("hidden"); return; }
+            tabsEl.classList.remove("hidden");
+            currentTab = currentTab && tabList.includes(currentTab) ? currentTab : tabList[0];
+            tabList.forEach(t => {
+                const el = document.createElement("div");
+                el.className = "tab" + (t === currentTab ? " active" : "");
+                el.textContent = t;
+                el.onclick = () => { currentTab = t; renderMain(); };
+                tabsEl.appendChild(el);
+            });
+        }
+
+        function renderMain() {
+            // Clear chart if any
+            if (chart) { chart.destroy(); chart = undefined; }
+
+            const obj = MENU[currentL1][currentL2];
+
+            // Level-3 tabs?
+            if (obj._tabs) {
+                renderTabs(obj._tabs);
+            } else {
+                renderTabs(null);
+            }
+
+            // Content
+            contentEl.innerHTML = "";
+            console.log("renderMain - obj:", obj); // Debug
+            console.log("renderMain - obj keys:", Object.keys(obj)); // Debug thêm
+            console.log("renderMain - obj._single:", obj._single); // Debug
+
+            if (obj._single) {
+                console.log("Entering _single block"); // Debug
+                const c = obj._single;
+                contentEl.appendChild(card(
+                    `<h2>${c.title}</h2><p>${c.desc || ""}</p>`
+                ));
+                // render extra blocks (Add Device, v.v.)
+                console.log("Debug - currentL1:", currentL1, "currentL2:", currentL2); // Debug line
+                const extraHtml = extraBlocks(currentL1, currentL2);
+                console.log("extraHtml result:", extraHtml); // Debug
+                if (extraHtml) {
+                    console.log("Adding extraHtml to DOM"); // Debug
+                    const wrapper = document.createElement("div");
+                    wrapper.innerHTML = extraHtml;
+                    [...wrapper.children].forEach(ch => contentEl.appendChild(ch));
+                }
+
+                setupEventListeners();
+            }
+            // Special case for Deployment Wizard 
+            else if (currentL1 === "Deployment Wizard") {
+                console.log("Special Deployment Wizard case"); // Debug
+                contentEl.appendChild(card(
+                    `<h2>Deployment Wizard</h2><p>Supports the deployment wizard. Set deployment parameters, connect devices, and connect to the management system step-by-step.</p>`
+                ));
+
+                const extraHtml = extraBlocks(currentL1, currentL2);
+                console.log("Deployment extraHtml:", extraHtml); // Debug
+                if (extraHtml) {
+                    const wrapper = document.createElement("div");
+                    wrapper.innerHTML = extraHtml;
+                    [...wrapper.children].forEach(ch => contentEl.appendChild(ch));
+                }
+                setupEventListeners();
+            }
+
+            else if (obj.sections) {
+                const s = obj.sections[currentTab];
+                contentEl.appendChild(card(`<h2>${s.title}</h2><p>${s.desc || ""}</p>`));
+                if (s.chart) { renderYieldChart(); renderYieldTable(); }
+            }
+        }
+
+        function card(html) {
+            const el = document.createElement("div");
+            el.className = "card";
+            el.innerHTML = html;
+            return el;
+        }
+
+        function extraBlocks(l1, l2) {
+            console.log("extraBlocks called with:", l1, l2); // Debug thêm
+            if (l1 === "Deployment Wizard") {
+                return `
+            <div class="card">
+                <h3>Add New Device</h3>
+                <button id="addDeviceBtn">➕ Add Device</button>
+                <div id="deviceForm" class="hidden" style="margin-top:12px">
+                <label>Connection Type:
+                    <select id="connType">
+                    <option value="wireless">Wireless (IP)</option>
+                    <option value="wired">Wired (RS485/Serial)</option>
+                    </select>
+                </label><br/><br/>
+                <div id="wirelessFields">
+                    <label>IP Address: <input type="text" id="ipAddr" placeholder="192.168.1.100"/></label><br/><br/>
+                    <label>Port: <input type="number" id="ipPort" placeholder="502"/></label><br/><br/>
+                </div>
+                <div id="wiredFields" class="hidden">
+                    <label>COM Port: <input type="text" id="comPort" placeholder="/dev/ttyUSB0"/></label><br/><br/>
+                    <label>Baudrate: <input type="number" id="baudrate" placeholder="9600"/></label><br/><br/>
+                </div>
+                <label>Device Name: <input type="text" id="devName" placeholder="MyDevice"/></label><br/><br/>
+                <button id="saveDeviceBtn">💾 Save</button>
+                </div>
+            </div>
+            <div id="deviceList" class="card"><h3>Devices</h3><ul id="deviceUl"></ul></div>
+            `;
+            }
+
+            if (l1 === "Overview" && l2 === "Mobile Data") {
+                return `
+            <div class="grid">
+                <div class="card">
+                <table>
+                <tr><th>SIM</th><td>Detected</td></tr>
+                <tr><th>Operator</th><td>Vinaphone</td></tr>
+                <tr><th>Network</th><td>5G</td></tr>
+                <tr><th>Signal</th><td>-85 dBm (RSRP)</td></tr>
+                <tr><th>Status</th><td>Connected</td></tr>
+                <tr><th>Usage (DL/UL)</th><td>1.2 GB / 180 MB</td></tr>
+                </table></div>
+                <div class="card"><table>
+                <tr><th>APN</th><td>v-internet</td></tr>
+                <tr><th>IP Address</th><td>10.123.45.67</td></tr>
+                <tr><th>Last Attach</th><td>2025-08-18 10:15</td></tr>
+                <tr><th>Roaming</th><td>No</td></tr>
+                </table></div>
+            </div>
+            `;
+            }
+
+            if (l1 === "Monitoring" && l2 === "Logger") {
+                return `
+            <div class="grid">
+                <div class="card">
+                <table>
+                    <tr><th>Device</th><td>SmartLogger3000</td></tr>
+                    <tr><th>Serial</th><td>SL3K-XX12345678</td></tr>
+                    <tr><th>Firmware</th><td>V3.0.0</td></tr>
+                    <tr><th>IP</th><td>192.168.1.10</td></tr>
+                    <tr><th>Status</th><td>offline rồi nha</td></tr>
+                    <tr><th>Uptime</th><td>3 days 04:12:55</td></tr>
+                </table>
+                </div>
+                <div class="card">
+                <table>
+                    <tr><th>Inverters Online</th><td>6 / 6</td></tr>
+                    <tr><th>Meters</th><td>2</td></tr>
+                    <tr><th>Alarms</th><td>0 Critical, 1 Minor</td></tr>
+                    <tr><th>Last Report</th><td>10:29:04</td></tr>
+                </table>
+                </div>
+            </div>
+            `;
+            }
+
+            return "";
+        }
+
+        // *** FUNCTION MỚI: Đăng ký event listeners sau khi DOM được render ***
+        function setupEventListeners() {
+            // Add Device button
+            const addDeviceBtn = document.getElementById("addDeviceBtn");
+            if (addDeviceBtn) {
+                addDeviceBtn.onclick = () => {
+                    const deviceForm = document.getElementById("deviceForm");
+                    if (deviceForm) {
+                        deviceForm.classList.toggle("hidden");
+                    }
+                };
+            }
+
+            // Save Device button
+            const saveDeviceBtn = document.getElementById("saveDeviceBtn");
+            if (saveDeviceBtn) {
+                saveDeviceBtn.onclick = () => {
+                    const type = document.getElementById("Connect Type").value;
+                    let info = "";
+                    if (type === "wireless") {
+                        const ip = document.getElementById("IP Address").value;
+                        const port = document.getElementById("Port").value;
+                        info = `IP: ${ip}, Port: ${port}`;
+                    } else {
+                        const com = document.getElementById("COM").value;
+                        const baud = document.getElementById("Baudrate").value;
+                        info = `COM: ${com}, Baud: ${baud}`;
+                    }
+                    const name = document.getElementById("devName").value;
+                    const li = document.createElement("li");
+                    li.textContent = `${name} (${type}) → ${info}`;
+
+                    const deviceUl = document.getElementById("deviceUl");
+                    if (deviceUl) {
+                        deviceUl.appendChild(li);
+                    }
+                    alert("Device saved!");
+
+                    // Hide form and clear inputs
+                    document.getElementById("deviceForm").classList.add("hidden");
+                    document.getElementById("devName").value = "";
+                    document.getElementById("IP Address").value = "";
+                    document.getElementById("Port").value = "";
+                    document.getElementById("COM").value = "";
+                    document.getElementById("Baudrate").value = "";
+                };
+            }
+
+            // Connection type change
+            const connType = document.getElementById("Connect Type");
+            if (connType) {
+                connType.onchange = (e) => {
+                    const isWireless = e.target.value === "wireless";
+                    const wirelessFields = document.getElementById("wirelessFields");
+                    const wiredFields = document.getElementById("wiredFields");
+
+                    if (wirelessFields) {
+                        wirelessFields.classList.toggle("hidden", !isWireless);
+                    }
+                    if (wiredFields) {
+                        wiredFields.classList.toggle("hidden", isWireless);
+                    }
+                };
+            }
+        }
+
+        function renderYieldChart() {
+            const canvas = document.createElement("canvas");
+            canvas.height = 400;
+            contentEl.appendChild(card(canvas.outerHTML));
+            const ctx = contentEl.querySelector("canvas").getContext("2d");
+            const labels = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"];
+            const data = [0, 0.1, 0.9, 1.1, 1.5, 0.2, 1.2];
+            chart = new Chart(ctx, {
+                type: "line",
+                data: { labels, datasets: [{ label: "Yield (kWh)", data, tension: .35 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: true } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function renderYieldTable() {
+            const tbl = document.createElement("div");
+            tbl.className = "card";
+            tbl.innerHTML = `
+        <table>
+          <thead><tr>
+            <th>Time</th><th>Yield (kWh)</th><th>Reduced CO₂ (mg)</th><th>Revenue (VND)</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Total</td><td>1.90</td><td>0.72</td><td>3.10</td></tr>
+            <tr><td>00:00–01:00</td><td>0.00</td><td>0.00</td><td>--</td></tr>
+            <tr><td>06:00–07:00</td><td>0.10</td><td>0.04</td><td>0.05</td></tr>
+            <tr><td>12:00–13:00</td><td>0.60</td><td>0.23</td><td>0.90</td></tr>
+          </tbody>
+        </table>`;
+            contentEl.appendChild(tbl);
+        }
+
+        // Level-1 switching
+        lvl1El.querySelectorAll("button").forEach(btn => {
+            btn.addEventListener("click", () => setActiveLvl1(btn.dataset.l1));
+        });
+
+        // System time ticker
+        setInterval(() => {
+            const d = new Date(); const pad = n => String(n).padStart(2, "0");
+            document.getElementById("sysTime").textContent = `Time: ${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        }, 1000);
+
+        // Initial render
+        renderLvl2();
+    </script>
+</body>
+
+</html>

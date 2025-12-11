@@ -1,0 +1,15 @@
+Hi, I'm Xuan Phat.
+login name: moxa
+password: xuanphat123
+================================
+if the system has the wrong IP address, It will be unable log in Moxa.
+use this command to find device through MAC address : "arp -a" in terminal on Window, ip address of MOXA will appear on screen corresponding to MAC address.
+  
+If still no appear, this case for MOXA-UC2100 Model UC2101-LX.
+You need to configure again through Console Port (3 pins on the right side - RXD, TXD, GND), based on DB9 Port to USB, 
++ if you use PC for connect to MOXA you can use this DB9 to connect into PC. 
++ if Laptop, you need to have 3 pins RXD, TXD, GND on DB9 to connect with 3 pins on MOXA device.
+
+================================
+Some commands:
++ 'mx-ver': to check image version Arm-based computer.

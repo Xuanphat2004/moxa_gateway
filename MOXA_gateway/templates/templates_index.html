@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Modbus Address Mapping</title>
+    <!--=========================================================================================================-->
+    <!--================================== CSS ================================================================-->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .logo {
+            height: 100px;
+            vertical-align: middle;
+            margin-right: 60px;
+        }
+
+        /* title bar */
+        .navbar {
+            /* config colour and position of all buttons on the title bar */
+            background-color: #990404;
+            overflow: hidden;
+            padding: 15px 30px 15px;
+        }
+
+        .navbar button {
+            background-color: rgba(240, 48, 48, 0.8);
+            /* transparent green 80% */
+            color: white;
+            /*character colour*/
+            border: none;
+            /*no border*/
+            padding: 10px 20px 10px;
+            margin-right: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 6px;
+        }
+
+        .navbar button:hover {
+            background-color: rgba(22, 146, 6, 0.8);
+        }
+
+        h1,
+        h2 {
+            color: #e60606;
+            margin-left: 40px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin: 10px 40px;
+        }
+
+        label {
+            width: 150px;
+            display: inline-block;
+        }
+
+        input[type="number"],
+        input[type="submit"] {
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px 40px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #0c0505;
+            text-align: center;
+        }
+
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+
+    <style>
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #990404;
+            color: white;
+            text-align: left;
+            padding: 3px 40px 3px;
+            font-size: 20px;
+        }
+    </style>
+
+    <!--=========================================================================================================-->
+    <!--================================== Dark/Light mode =========================================================-->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: white;
+            color: black;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        .navbar {
+            background-color: #990404;
+            overflow: hidden;
+            padding: 15px 30px;
+        }
+
+        .navbar button {
+            background-color: rgba(240, 48, 48, 0.8);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 6px;
+        }
+
+        .navbar button:hover {
+            background-color: rgba(22, 146, 6, 0.8);
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #990404;
+            color: white;
+            text-align: left;
+            padding: 3px 40px 3px;
+            font-size: 16px;
+        }
+
+        /* Khi dark mode thì navbar & footer đổi màu */
+        .dark-mode .navbar {
+            background-color: #333;
+        }
+
+        .dark-mode .footer {
+            background-color: #222;
+        }
+
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px 40px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #0c0505;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!--=========================================================================================================-->
+    <!--==================================Title bar============================================================-->
+    <div class="navbar">
+        <img src="{{ url_for('static', filename='logoBK.png') }}" alt="Logo" class="logo">
+        <button onclick="showSection('home')">Home</button>
+        <button onclick="showSection('device')">Device Configuration</button>
+        <button onclick="showSection('mapping')">Mapping Configuration</button>
+        <button onclick="showSection('data')">Get Data</button>
+        <button onclick="showSection('Setting')">Setting</button>
+        <button onclick="toggleMode()" style="float:right;">Dark/Light</button>
+    </div>
+
+
+    <!--=================================== bottom title bar ====================================================-->
+    <div class="footer">
+        <p id="clock">Date: --/--/---- --:--:--</p>
+    </div>
+
+    <!--==================================Home button============================================================-->
+    <div id="home" class="section" style="display:block;">
+        <h1>Welcome to LAB 209-B3</h1>
+    </div>
+
+    <!--==================================Device configuration button============================================-->
+    <div id="device" class="section" style="display:none;">
+        <h1>DEVICE CONFIGURATION</h1>
+        <form action="/add_device" method="POST">
+            <div class="form-group">
+                <label for="ip_address">IP Address</label>
+                <input type="text" id="ip_address" name="ip_address" required>
+            </div>
+            <div class="form-group">
+                <label for="tcp_port">TCP Port</label>
+                <input type="number" id="tcp_port" name="tcp_port" required>
+            </div>
+            <div class="form-group">
+                <label for="device_name">Device Name</label>
+                <input type="text" id="device_name" name="device_name" required>
+            </div>
+            <div class="form-group">
+                <label for="device_model">Device Model</label>
+                <input type="text" id="device_model" name="device_model">
+            </div>
+            <div class="form-group">
+                <label for="device_type">Device Type</label>
+                <input type="text" id="device_type" name="device_type">
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Add Device">
+            </div>
+        </form>
+    </div>
+
+
+    <!--==================================Mapping Configuration button===========================================-->
+    <div id="mapping" class="section" style="display:none;">
+        <h1>ADDRESS MAPPING CONFIGURATION</h1>
+        <form action="/add_mapping" method="POST">
+            <div class="form-group">
+                <label for="tcp_address">TCP ADDRESS</label>
+                <input type="number" name="tcp_address" id="tcp_address" required>
+            </div>
+            <div class="form-group">
+                <label for="rtu_id">DEVICE ID</label>
+                <input type="number" name="rtu_id" id="rtu_id" min="1" max="247" required>
+            </div>
+            <div class="form-group">
+                <label for="rtu_address">RTU ADDRESS</label>
+                <input type="number" name="rtu_address" id="rtu_address" required>
+            </div>
+            <div class="form-group">
+                <label></label>
+                <input type="submit" value="Add Mapping">
+            </div>
+        </form>
+
+        <table>
+            <tr>
+                <th>NO.</th>
+                <th>TCP ADDRESS</th>
+                <th>DEVICE ID</th>
+                <th>RTU ADDRESS</th>
+                <th>ACTION</th>
+            </tr>
+            {% for mapping in mappings %}
+            <tr>
+                <td> {{loop.index}}</td>
+                <td>{{ mapping.tcp_address }}</td>
+                <td>{{ mapping.rtu_id }}</td>
+                <td>{{ mapping.rtu_address }}</td>
+                <td>
+                    <form action="/delete_mapping/{{ mapping.tcp_address }}" method="POST" style="display:inline;">
+                        <input type="submit" value="Delete" class="delete-btn"
+                            onclick="return confirm('Are you wanting to delete this mapping ?');">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!--================================= Device configuration button ===========================================-->
+    <div id="data" class="section" style="display:none;">
+        <h1>GET DATA</h1>
+        <p>Đang lên ý tưởng</p>
+    </div>
+
+
+    <!--================================== JavaScript ============================================================-->
+    <script>
+        //==========================================================================================================
+        //======================= Section display function =========================================================
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none'); // hide all sections
+            document.getElementById(id).style.display = 'block'; // only show the selected section
+        }
+
+        //==========================================================================================================
+        //======================= Dark/Light mode toggle function ==================================================
+        function toggleMode() {
+            document.body.classList.toggle("dark-mode"); // toggle dark mode class on body
+        }
+
+        //==========================================================================================================
+        //======================= Real-time clock function =========================================================
+        function updateClock() {
+            const now = new Date();
+            // Lấy ngày/tháng/năm
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // tháng bắt đầu từ 0
+            const year = now.getFullYear();
+
+            // Lấy giờ/phút/giây
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            // Ghép chuỗi hiển thị
+            const dateString = `${day}/${month}/${year}`;
+            const timeString = `${hours}:${minutes}:${seconds}`;
+
+            document.getElementById("clock").textContent = `Date: ${dateString} - Time: ${timeString}`;
+        }
+
+        setInterval(updateClock, 1000); // cập nhật mỗi giây
+        updateClock(); // chạy ngay khi mở trang
+    </script>
+
+</body>
+
+</html>
