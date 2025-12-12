@@ -226,7 +226,7 @@ void *send_command_thread(void *arg)
 
             connected = 1;
             printf("[RTU Server] Connected to Modbus RTU device.\n");
-            write_log_log("write_log.log", "INFO", "[RTU Server] Connected to Modbus RTU device.");
+            // write_log_log("write_log.log", "INFO", "[RTU Server] Connected to Modbus RTU device.");
         }
 
         RequestPacket req = take_request();
