@@ -166,7 +166,7 @@ void *receive_request_thread(void *arg)
                     continue;
                 }
                 RequestPacket req;
-
+                // json packet
                 req.transaction_id = json_integer_value(json_object_get(root, "transaction_id"));
                 req.rtu_id = json_integer_value(json_object_get(root, "rtu_id"));
                 req.address = json_integer_value(json_object_get(root, "rtu_address"));
@@ -235,7 +235,7 @@ void *send_command_thread(void *arg)
 
         int rc = -1;
         uint16_t value[req.quantity];
-
+        // delay 1.5s
         modbus_set_response_timeout(ctx, 1, 0);  // 1s
         modbus_set_byte_timeout(ctx, 0, 500000); // 500ms
 
@@ -252,7 +252,7 @@ void *send_command_thread(void *arg)
         else
         {
             printf("[RTU Server] Unsupported function: %d !!!\n", req.function);
-            write_log_log("write_log.log", "ERROR", "[RTU Server] Unsupported function: %d !!!", req.function);
+            // write_log_log("write_log.log", "ERROR", "[RTU Server] Unsupported function: %d !!!", req.function);
             rc = -1;
         }
 
@@ -267,8 +267,7 @@ void *send_command_thread(void *arg)
             resp.address = req.address;
             printf("[RTU Server get data] Success to get data from RTU_ID: %d with transaction_id: %d .\n", req.rtu_id, resp.transaction_id, resp.value);
             printf("[RTU Server get data] data value:  %d .\n", resp.value);
-            write_log_log("write_log.log", "INFO", "[RTU Server get data] Success to get data from RTU_ID: %d with transaction_id: %d . Value: %d",
-                          req.rtu_id, resp.transaction_id, resp.value);
+            // write_log_log("write_log.log", "INFO", "[RTU Server get data] Success to get data from RTU_ID: %d with transaction_id: %d . Value: %d", req.rtu_id, resp.transaction_id, resp.value);
         }
         else
         {
@@ -276,7 +275,7 @@ void *send_command_thread(void *arg)
             resp.value = 0;
             connected = 0;
             printf("[RTU Server get data] Transaction_id %d failed to get data from device, try again !!!\n", req.transaction_id);
-            write_log_log("write_log.log", "ERROR", "[RTU Server get data] Transaction_id %d failed to get data from device !!!", req.transaction_id);
+            // write_log_log("write_log.log", "ERROR", "[RTU Server get data] Transaction_id %d failed to get data from device !!!", req.transaction_id);
         }
 
         add_response(resp);
