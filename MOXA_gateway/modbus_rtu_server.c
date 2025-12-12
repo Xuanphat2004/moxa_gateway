@@ -322,32 +322,32 @@ void *send_response_thread(void *arg)
     redisFree(redis);
     return NULL;
 }
-void *polling_get_data_thread(void *arg)
-{
-    sqlite3 *db;
-    sqlite3_open(modbus_mapping.db, &db);
-    CREATE TABLE IF NOT EXISTS data_log(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-        rtu_id INTEGER,
-        rtu_address INTEGER,
-        value INTEGER);
-}
+// void *polling_get_data_thread(void *arg)
+// {
+//     sqlite3 *db;
+//     sqlite3_open(modbus_mapping.db, &db);
+//     CREATE TABLE IF NOT EXISTS data_log(
+//         id INTEGER PRIMARY KEY AUTOINCREMENT,
+//         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+//         rtu_id INTEGER,
+//         rtu_address INTEGER,
+//         value INTEGER);
+// }
 //====================================================================================================
 //======================== Main: create threads and run ==============================================
 int main()
 {
-    pthread_t request_thread, command_thread, response_thread, polling_thread; // contain ID of threads
+    pthread_t request_thread, command_thread, response_thread; // polling_thread; // contain ID of threads
 
     pthread_create(&request_thread, NULL, receive_request_thread, NULL);
     pthread_create(&command_thread, NULL, send_command_thread, NULL);
     pthread_create(&response_thread, NULL, send_response_thread, NULL);
-    pthread_create(&polling_thread, NULL, polling_get_data_thread, NULL);
+    // pthread_create(&polling_thread, NULL, polling_get_data_thread, NULL);
 
     pthread_join(request_thread, NULL);
     pthread_join(command_thread, NULL);
     pthread_join(response_thread, NULL);
-    pthread_join(polling_thread, NULL);
+    // pthread_join(polling_thread, NULL);
 
     return 0;
 }
