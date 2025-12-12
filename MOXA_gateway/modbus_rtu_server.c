@@ -132,14 +132,14 @@ void *receive_request_thread(void *arg)
     {
         printf("\n");
         printf("[RTU Server connect Redis] Connected to Redis server\n");
-        write_log_log("write_log.log", "INFO", "[RTU Server connect Redis] Connected to Redis server");
-        write_log_db(db, "INFO", "Connected to Redis server");
+        // write_log_log("write_log.log", "INFO", "[RTU Server connect Redis] Connected to Redis server");
+        // write_log_db(db, "INFO", "Connected to Redis server");
     }
     freeReplyObject(reply);
 
     printf("[RTU Server connect Redis] Subscribed to modbus_request\n");
-    write_log_log("write_log.log", "INFO", "[RTU Server connect Redis] Subscribed to modbus_request");
-    write_log_db(db, "INFO", "Subscribed to modbus_request");
+    // write_log_log("write_log.log", "INFO", "[RTU Server connect Redis] Subscribed to modbus_request");
+    // write_log_db(db, "INFO", "Subscribed to modbus_request");
 
     while (1)
     {
@@ -160,8 +160,8 @@ void *receive_request_thread(void *arg)
                 if (!root)
                 {
                     fprintf(stderr, "[RTU Server receive request] JSON parse error: %s\n", error.text);
-                    write_log_log("write_log.log", "ERROR", "[RTU Server receive request] JSON parse error: %s !!!", error.text);
-                    write_log_db(db, "ERROR", "JSON parse error: %s", error.text);
+                    // write_log_log("write_log.log", "ERROR", "[RTU Server receive request] JSON parse error: %s !!!", error.text);
+                    // write_log_db(db, "ERROR", "JSON parse error: %s", error.text);
                     freeReplyObject(msg);
                     continue;
                 }
@@ -176,8 +176,8 @@ void *receive_request_thread(void *arg)
                 json_decref(root); // clean up JSON object
 
                 printf("[RTU Server receive request] Received transaction_id %d, added to queue\n", req.transaction_id);
-                write_log_db(db, "INFO", "Received transaction_id %d, added to queue", req.transaction_id);
-                write_log_log("write_log.log", "INFO", "[RTU Server receive request] Received transaction_id %d, added to queue", req.transaction_id);
+                // write_log_db(db, "INFO", "Received transaction_id %d, added to queue", req.transaction_id);
+                // write_log_log("write_log.log", "INFO", "[RTU Server receive request] Received transaction_id %d, added to queue", req.transaction_id);
             }
             freeReplyObject(msg);
         }
